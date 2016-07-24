@@ -1,4 +1,4 @@
-import config from "../config";
+import config from "../../config";
 import forOwn from "lodash/forOwn";
 import project from "./project";
 

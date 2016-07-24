@@ -1,5 +1,7 @@
-import {DEPLOYMENT_CAPISTRANO} from "../config";
+import config, {DEPLOYMENT_CAPISTRANO} from "../../config";
 import {capistrano} from "../provider";
+import request from "request";
+import {normalizeUrl} from "../../helpers";
 
 const project = ({repoUrl, provider, allowedRooms, environments, name})=> {
     const validate = () => {
@@ -23,7 +25,15 @@ const project = ({repoUrl, provider, allowedRooms, environments, name})=> {
             }
         },
         getCompareUrl(branch){
-            return `${repoUrl}/compare/master.../${branch}`;
+            return `${normalizeUrl(repoUrl)}/compare/master.../${branch}`;
+        },
+        requestDeployedVersion(stage, responseHandler){
+            const url = config.get(`projects.${name}.${stage}Url`);
+            if (!url) throw new Error('Environment Url not found');
+            const versionTxtUri = 'ver.txt';
+            const requestUrl = `${normalizeUrl(url)}/${versionTxtUri}`;
+
+            request(requestUrl, responseHandler);
         }
     }
 };

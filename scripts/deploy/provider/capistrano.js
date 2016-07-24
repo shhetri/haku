@@ -34,8 +34,8 @@ const capistrano = () => {
     };
 
     return {
-        deploy(projectPath, branch, stage) {
-            const command = spawn('cap', [stage, "deploy", `branch=${branch}`], {cwd: projectPath});
+        deploy(projectPath, branch, stage, user = null) {
+            const command = spawn('cap', [stage, "deploy", `branch=${branch}`, `user=${user && user.name || 'haku'}`], {cwd: projectPath});
             streamResult(command);
 
             return this;

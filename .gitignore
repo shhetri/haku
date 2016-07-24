@@ -3,3 +3,5 @@ node_modules
 .hubot_history
 .idea
 capistrano.log
+npm-debug.log
+hubot-haku.log
