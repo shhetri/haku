@@ -1,7 +1,7 @@
 import {projectCollection} from "../project";
 import {resolve} from "path";
 import config from "../../config";
-import {escape} from "../../helpers";
+import {escape, getUser, getRoom} from "../../helpers";
 
 /**
  * List all the projects that are configured in haku for deployment
@@ -22,7 +22,7 @@ export const listsProjects = res => {
  * @param res
  */
 export const listsProjectsInRoom = res => {
-    const projects = projectCollection.getInRoom(res.envelope.room);
+    const projects = projectCollection.getInRoom(getRoom(res));
 
     if (projects.length) {
         return res.send(`La herum pasa yo room ma vayeko projects ko list: ${'\n *'} ${projects.map(project => project.name).join('\n * ')}`);
@@ -46,23 +46,25 @@ export const deployHelp = res => {
 /**
  * Deploy a project
  * @param res
+ * @param robot
  */
 export const deploy = (res, robot) => {
-    const user = res.envelope.user || res.envelope;
+    const user = getUser(res);
     const projectName = (res.match[1] || '').trim();
-    let branch = (res.match[2] || '').trim() || 'master';
-    let stage = (res.match[3] || '').trim() || 'staging';
-    const room = res.envelope.room;
+    const branch = (res.match[2] || '').trim() || 'master';
+    const stage = (res.match[3] || '').trim() || 'staging';
 
     try {
         const project = projectCollection.findByName(projectName);
 
-        if (!project.isAllowedInRoom(room)) {
+        if (!project.isAllowedInRoom(getRoom(res))) {
             return res.reply(`${config.get('hakuLines.bal')}, ${projectName} lai yo room bata deploy garna nakhoj.`);
         }
 
-        if (!project.isDeployable(stage)) {
-            return res.reply(`${config.get('hakuLines.bal')}, ${projectName} lai ${stage} ma deploy garna nakhoj.`);
+        if (!project.isDeployable(stage, user)) {
+            res.reply(`${config.get('hakuLines.bal')}, ${projectName} lai ${stage} ma deploy garna nakhoj.`);
+            res.send(`kita ${projectName} ko ${stage} environment chaina.`);
+            return res.send(`kita ${projectName} lai ${stage} ma deploy garne permission talai chaina @${user.mention_name} pasa.`);
         }
 
         const projectPath = resolve(__dirname, "../project", `./${projectName}`);
@@ -82,7 +84,7 @@ export const deploy = (res, robot) => {
             return;
         }
 
-        res.reply(`pasa pahile ${projectName} ko lagi capistrano configurations setup gar, ani balla deploy haan.`);
+        res.reply(`pasa pahile ${projectName} ko lagi configurations setup gar, ani balla deploy haan.`);
     } catch (e) {
         robot.logger.error(e);
         res.send(config.get('hakuLines.projectPayena', {project: projectName, username: user.mention_name}));
@@ -93,9 +95,10 @@ export const deploy = (res, robot) => {
  * Haku give you the version of the project reading the ver.txt from the
  * given environment. Environment falls back to staging if nothing is provided.
  * @param res
+ * @param robot
  */
 export const version = (res, robot) => {
-    const user = res.envelope.user || res.envelope;
+    const user = getUser(res);
     const parts = escape(res.match[2]).split(' ');
     const projectName = escape(parts[0]);
     const stage = escape(parts[1]) || 'staging';

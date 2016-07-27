@@ -1,8 +1,7 @@
 import {spawn} from "child_process";
 import {carry} from "carrier";
 import EventEmitter from "events";
-import {resolve} from "path";
-import {existsSync, appendFileSync, readFileSync} from "fs";
+import {existsSync} from "fs";
 
 const capistrano = () => {
 
