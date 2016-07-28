@@ -4,6 +4,10 @@ import project from "./project";
 
 const collection = () => {
     return {
+        /**
+         * Get all the projects
+         * @returns {Array}
+         */
         all(){
             const projects = config.get('projects');
             let projectCollection = [];
@@ -14,11 +18,23 @@ const collection = () => {
 
             return projectCollection;
         },
+
+        /**
+         * Get projects that is available in the provided room
+         * @param room
+         * @returns Array
+         */
         getInRoom(room){
             const projects = this.all();
 
             return projects.filter(project => project.isAllowedInRoom(room));
         },
+
+        /**
+         * Find the project by its name
+         * @param name
+         * @returns {{name, repoUrl, isAllowedInRoom, isDeployable, getProvider, getCompareUrl, requestDeployedVersion}}
+         */
         findByName(name){
             const projectConfiguration = config.get('projects')[name];
 

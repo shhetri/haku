@@ -14,9 +14,9 @@
 import {listsProjects, listsProjectsInRoom, deployHelp, deploy, version} from "./deploy/response";
 
 export default robot => {
-    robot.respond(/deploy( help)?$/i, res => deployHelp(res, robot));
-    robot.respond(/list projects$/i, res => listsProjects(res, robot));
-    robot.respond(/list projects in room/i, res => listsProjectsInRoom(res, robot));
+    robot.respond(/deploy( help)?$/i, res => deployHelp(res));
+    robot.respond(/list projects$/i, res => listsProjects(res));
+    robot.respond(/list projects in room/i, res => listsProjectsInRoom(res));
     robot.respond(/deploy([\s]+(?!(?:help$))[\w-\/]+)[:@]?([\w-]*?)(?:[\s]?)+(?:to([\s]+[\w-\/]+[\s]*?))?$/i, res => deploy(res, robot));
     robot.respond(/(ver) (.*)/i, res => version(res, robot));
 };

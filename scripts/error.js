@@ -8,4 +8,4 @@ export default robot => {
             res.reply(`${config.get('hakuLines.dheraiDin')}, ${err}`);
         }
     });
-}
+};
