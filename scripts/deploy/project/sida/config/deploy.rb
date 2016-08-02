@@ -225,11 +225,11 @@ namespace :nginx do
     end
 end
 
-namespace :php5_fpm do
-    desc 'Restart php5-fpm'
+namespace :php_fpm do
+    desc 'Restart php-fpm'
         task :restart do
             on roles(:all) do
-            execute :sudo, :service, "php5-fpm restart"
+            execute :sudo, :service, "php5.6-fpm restart"
         end
     end
 end
@@ -246,4 +246,4 @@ namespace :deploy do
 end
 
 after "deploy",   "nginx:reload"
-after "deploy",   "php5_fpm:restart"
+after "deploy",   "php_fpm:restart"
