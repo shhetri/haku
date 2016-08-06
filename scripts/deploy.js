@@ -4,7 +4,7 @@
 // Commands:
 //   hubot list projects - List the projects that can be deployed by me
 //   hubot list projects in room - List the projects in the room that can be deployed by me
-//   hubot deploy <project>:<branch> to <stage> - Deploy a project to given stage
+//   hubot deploy <project> <branch> to <stage> - Deploy a project to given stage
 //   hubot deploy help : Give examples of deploy command
 //   hubot ver <app> <env> - Know which tag/branch is deployed by whom and when!
 //
@@ -17,6 +17,6 @@ export default robot => {
     robot.respond(/deploy( help)?$/i, res => deployHelp(res));
     robot.respond(/list projects$/i, res => listsProjects(res));
     robot.respond(/list projects in room/i, res => listsProjectsInRoom(res));
-    robot.respond(/deploy([\s]+(?!(?:help$))[\w-\/]+)[:@]?([\w-]*?)(?:[\s]?)+(?:to([\s]+[\w-\/]+[\s]*?))?$/i, res => deploy(res, robot));
+    robot.respond(/deploy([\s]+(?!(?:help$))[\w-]+)[\s+]?((?!(?:-v))[\w-]*?)(?:[\s]?)+(?:to([\s]+[\w-\/]+[\s]*?))?(\s-v\s*)?$/i, res => deploy(res, robot));
     robot.respond(/(ver) (.*)/i, res => version(res, robot));
 };

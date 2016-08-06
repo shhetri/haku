@@ -1,5 +1,4 @@
 import {projectCollection} from "../project";
-import {resolve} from "path";
 import config from "../../config";
 import {escape, getUser, getRoom} from "../../helpers";
 
@@ -11,10 +10,10 @@ export const listsProjects = res => {
     const projects = projectCollection.all();
 
     if (projects.length) {
-        return res.send(`La herum pasa projects ko list: ${'\n *'} ${projects.map(project => project.name).join('\n * ')}`);
+        return res.send(`${config.get('hakuLines.herumProjectList')} : ${'\n *'} ${projects.map(project => project.name).join('\n * ')}`);
     }
 
-    res.send('La herum pasa projects ko list : Lya projects nai chaina raicha.');
+    res.send(`${config.get('hakuLines.herumProjectList')} : ${config.get('hakuLines.projectsChaina')}`);
 };
 
 /**
@@ -25,10 +24,10 @@ export const listsProjectsInRoom = res => {
     const projects = projectCollection.getInRoom(getRoom(res));
 
     if (projects.length) {
-        return res.send(`La herum pasa yo room ma vayeko projects ko list: ${'\n *'} ${projects.map(project => project.name).join('\n * ')}`);
+        return res.send(`${config.get('hakuLines.herumRoomKoProjectList')} : ${'\n *'} ${projects.map(project => project.name).join('\n * ')}`);
     }
 
-    res.send('La herum pasa yo room ma vayeko projects ko list: Lya projects nai chaina raicha.');
+    res.send(`${config.get('hakuLines.herumRoomKoProjectList')} : ${config.get('hakuLines.projectsChaina')}`);
 };
 
 /**
@@ -36,11 +35,12 @@ export const listsProjectsInRoom = res => {
  * @param res
  */
 export const deployHelp = res => {
-    res.send('La pasa yesari hanne Deploy command');
+    res.send(config.get('hakuLines.deployTarika'));
     res.send('deploy blog to staging');
-    res.send('deploy blog:BL-20 to production (note: BL-20 is the branch name)');
-    res.send('deploy blog@BL-20 to staging (note: BL-20 is the branch name)');
+    res.send('deploy blog BL-20 to production (note: BL-20 is the branch name)');
+    res.send('deploy blog BL-20 to staging (note: BL-20 is the branch name)');
     res.send('deploy blog (note: branch defaults to master and stage defaults to staging)');
+    res.send('deploy blog -v (note: -v for verbose)');
 };
 
 /**
@@ -53,6 +53,7 @@ export const deploy = (res, robot) => {
     const projectName = (res.match[1] || '').trim();
     const branch = (res.match[2] || '').trim() || 'master';
     const stage = (res.match[3] || '').trim() || 'staging';
+    const verbose = (res.match[4] || '').trim() === '-v';
 
     try {
         const project = projectCollection.findByName(projectName);
@@ -67,27 +68,16 @@ export const deploy = (res, robot) => {
             return res.send(`kita ${projectName} lai ${stage} ma deploy garne permission talai chaina @${user.mention_name} pasa.`);
         }
 
-        const projectPath = resolve(__dirname, "../project", `./${projectName}`);
         const deployProvider = project.getProvider();
+        const onStart = () => res.reply(`is deploying ${projectName}/${branch} to ${stage} (compare: ${project.getCompareUrl(branch)})`);
+        const onRunning = line => res.send(line);
+        const onSuccess = () => res.send(`@${user.mention_name}'s ${stage} deployment of ${projectName}/${branch} is done!`);
+        const onError = line => res.send(line);
 
-        if (deployProvider.isConfigured(projectPath)) {
-            res.reply(`is deploying ${projectName}/${branch} to ${stage} (compare: ${project.getCompareUrl(branch)})`);
-
-            deployProvider.deploy(projectPath, branch, stage, user)
-                .on('error', line => {
-                    res.send(line);
-                })
-                .on('finish', () => {
-                    res.send(`@${user.mention_name}'s ${stage} deployment of ${projectName}/${branch} is done!`);
-                });
-
-            return;
-        }
-
-        res.reply(`pasa pahile ${projectName} ko lagi configurations setup gar, ani balla deploy haan.`);
+        deployProvider.deploy(project, branch, stage, user)(onStart, onSuccess, onError, verbose && onRunning);
     } catch (e) {
         robot.logger.error(e);
-        res.send(config.get('hakuLines.projectPayena', {project: projectName, username: user.mention_name}));
+        res.reply(e);
     }
 };
 

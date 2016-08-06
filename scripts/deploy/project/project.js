@@ -1,17 +1,16 @@
-import config, {DEPLOYMENT_CAPISTRANO} from "../../config";
+import config, {DEPLOYMENT_CAPISTRANO, PROJECTS_DIRECTORY} from "../../config";
 import {capistrano} from "../provider";
 import request from "request";
 import {normalizeUrl} from "../../helpers";
 import has from "lodash/has";
 import isEmpty from "lodash/isEmpty";
+import {resolve} from "path";
 
 const project = ({repoUrl, provider, allowedRooms, environments, name})=> {
     /**
      * Validate the config for the project
      */
-    const validate = () => {
-        if (!(repoUrl && provider && allowedRooms && environments && name)) throw Error('Invalid config for the project');
-    };
+    if (!(repoUrl && provider && allowedRooms && environments && name)) throw Error('Invalid config for the project');
 
     /**
      * Check if the project can be deployed in the provided stage by provided user
@@ -28,8 +27,6 @@ const project = ({repoUrl, provider, allowedRooms, environments, name})=> {
 
         return isEmpty(environments[stage].notAllowedUsers) || !environments[stage].notAllowedUsers.includes(userName);
     };
-
-    validate();
 
     return {
         /**
@@ -67,12 +64,14 @@ const project = ({repoUrl, provider, allowedRooms, environments, name})=> {
 
         /**
          * Get the deployment provider for the project
-         * @returns {{deploy, isConfigured, on}}
+         * @returns {{deploy}}
          */
         getProvider(){
             if (provider === DEPLOYMENT_CAPISTRANO) {
                 return capistrano;
             }
+
+            throw new Error(config.get('hakuLines.invalidProvider'));
         },
 
         /**
@@ -81,7 +80,10 @@ const project = ({repoUrl, provider, allowedRooms, environments, name})=> {
          * @returns {string}
          */
         getCompareUrl(branch){
-            return `${normalizeUrl(repoUrl)}/compare/master.../${branch}`;
+            const re = /git@(.+):(.+).git$/;
+            const repoWebUrl = repoUrl.replace(re, 'http://$1/$2');
+
+            return `${normalizeUrl(repoWebUrl)}/compare/master.../${branch}`;
         },
 
         /**
@@ -96,6 +98,15 @@ const project = ({repoUrl, provider, allowedRooms, environments, name})=> {
             const requestUrl = `${normalizeUrl(url)}/${versionTxtUri}`;
 
             request(requestUrl, responseHandler);
+        },
+
+        /**
+         * Return the project path
+         *
+         * @returns string
+         */
+        path(){
+            return resolve(PROJECTS_DIRECTORY, `./${name}`);
         }
     }
 };
