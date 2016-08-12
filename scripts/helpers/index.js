@@ -1,3 +1,9 @@
+import zipObject from "lodash/zipObject";
+import map from "lodash/map";
+import {CronJob} from "cron";
+import {MAINTENANCE_CRON_TIME} from "../config";
+import {removeStaleProjects} from "../helpers/commands";
+
 /**
  * Omit special characters from the string
  * @param string
@@ -21,3 +27,47 @@ export const getUser = res => res.envelope.user || res.envelope;
  * @param res
  */
 export const getRoom = res => res.envelope.room;
+
+/**
+ * Convert string to array.
+ *
+ * @param string
+ * @param separator
+ * @param rejectEmpty
+ * @returns {Array}
+ */
+export const stringToArray = (string, separator = ',', rejectEmpty = true)=> {
+    const array = string.split(separator).map(item => item.trim());
+
+    if (rejectEmpty) {
+        return array.filter(item => !!item)
+    }
+
+    return array;
+};
+
+/**
+ * Convert Array of Objects to Object of Objects
+ *
+ * @param arrayOfObjects
+ * @param key The key in the object whose value should be used as the key of that whole object
+ */
+export const arrayOfObjectsToObject = (arrayOfObjects, key) => {
+    return zipObject(map(arrayOfObjects, key), arrayOfObjects);
+};
+
+/**
+ * Configure maintenance mode
+ */
+export const configureMaintenance = () => {
+    const job = new CronJob({
+        cronTime: MAINTENANCE_CRON_TIME,
+        onTick(){
+            removeStaleProjects();
+        },
+        start: false,
+        timeZone: 'Asia/Kathmandu'
+    });
+
+    job.start();
+};

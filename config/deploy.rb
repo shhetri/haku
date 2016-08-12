@@ -64,6 +64,15 @@ namespace :haku do
     end
 end
 
+namespace :setup do
+    desc 'Create projects folder'
+        task :create_projects_folder do
+            on roles(:app) do
+            execute "mkdir -p #{fetch(:projects_path)}"
+        end
+    end
+end
+
 namespace :deploy do
     after :updated, "node_modules:copy"
     after :updated, "npm:install"

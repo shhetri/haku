@@ -1,5 +1,5 @@
 import config from "../../config";
-import forOwn from "lodash/forOwn";
+import values from "lodash/values";
 import project from "./project";
 
 const collection = () => {
@@ -9,14 +9,7 @@ const collection = () => {
          * @returns {Array}
          */
         all(){
-            const projects = config.get('projects');
-            let projectCollection = [];
-
-            forOwn(projects, (config, projectName) => {
-                projectCollection.push(project({...config, name: projectName}));
-            });
-
-            return projectCollection;
+            return values(config.get('projects')).map(projectConfiguration => project(projectConfiguration));
         },
 
         /**
@@ -38,9 +31,9 @@ const collection = () => {
         findByName(name){
             const projectConfiguration = config.get('projects')[name];
 
-            if (!projectConfiguration) throw Error(`Project with name ${name} is not available`);
+            if (!projectConfiguration) throw Error(config.get('hakuLines.projectPayena', {project: name}));
 
-            return project({...projectConfiguration, name});
+            return project(projectConfiguration);
         }
     }
 };

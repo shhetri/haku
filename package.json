@@ -5,26 +5,30 @@
   "author": "sumit.chhetri@yipl.com.np",
   "description": "A simple helpful robot for YoungInnovations",
   "dependencies": {
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-plugin-transform-class-properties": "^6.10.2",
-    "babel-plugin-transform-export-extensions": "^6.8.0",
-    "babel-plugin-transform-object-rest-spread": "^6.8.0",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-register": "^6.9.0",
-    "carrier": "^0.3.0",
-    "hubot": "^2.19.0",
+    "async": "2.0.1",
+    "babel-plugin-add-module-exports": "0.2.1",
+    "babel-plugin-transform-class-properties": "6.10.2",
+    "babel-plugin-transform-export-extensions": "6.8.0",
+    "babel-plugin-transform-object-rest-spread": "6.8.0",
+    "babel-preset-es2015": "6.9.0",
+    "babel-register": "6.9.0",
+    "carrier": "0.3.0",
+    "cron": "1.1.0",
+    "csvtojson": "1.0.0",
+    "hubot": "2.19.0",
     "hubot-diagnostics": "0.0.1",
-    "hubot-help": "^0.2.0",
-    "hubot-hipchat": "^2.12.0-6",
-    "hubot-scripts": "^2.17.2",
-    "install": "^0.8.1",
-    "lodash": "^4.13.1",
-    "npm": "^3.10.5",
-    "path": "^0.12.7",
-    "reconfig": "^3.0.0",
-    "request": "^2.74.0"
+    "hubot-help": "0.2.0",
+    "hubot-hipchat": "https://github.com/hipchat/hubot-hipchat#47c9187ffd26bc70cf0dbfd011fcecc7d023efec",
+    "hubot-scripts": "2.17.2",
+    "install": "0.8.1",
+    "lodash": "4.13.1",
+    "npm": "3.10.5",
+    "path": "0.12.7",
+    "reconfig": "3.0.0",
+    "request": "2.74.0",
+    "rimraf": "2.5.4"
   },
   "engines": {
-    "node": "0.10.x"
+    "node": ">6.1.0"
   }
 }
